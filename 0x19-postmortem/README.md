@@ -1,46 +1,59 @@
-*POSTMORTEM* 
+*POSTMORTEM*
 
+#Issue Summary:
 
-Start : 10/07/2023, 4:AM end : 14/07/2023, 4:PM
+Duration:
+Start Time: February 23, 2024, 10:30 AM (UTC)
+End Time: February 23, 2024, 12:45 PM (UTC)
 
- *IMPACT:* 
+Impact:
+The outage affected our payment processing service, leading to a 25% degradation in user experience. Users reported delayed transactions and inability to complete purchases during the incident.
 
-What service was down/slow? The whole application running on PHP 7 crashed during this time lapse. What were users experiencing? Users were unable to connect into their accounts , those who were already connected were unable to send any requests (messages) How many % of the users were affected? Almost 100% of the users have been affected by this downtime error. what was the root cause The root cause of the error is an update made into production environment while some methods were still dependent to previous development stack (PHP 7, apache 5)
+Root Cause:
+The root cause of the outage was identified as a misconfiguration in the load balancer settings, causing uneven distribution of requests and overloading certain payment processing servers.
 
- *TIMELINE:* 
+Timeline:
 
-When was the issue detected The issue has been detected the 10/07/2023 at 2:0pAM How was the issue detected The issue was detected via the application deployment log which was displaying dependencies alert.
+10:30 AM: Issue detected through monitoring alerts indicating increased latency in payment transactions.
 
- *ACTIONS TAKEN:* 
+10:35 AM: Investigation initiated by the operations team, suspecting a possible server overload or network issue.
 
-In order to solve the issue, we proceeded to a rollback of the application development state.
+10:50 AM: Incorrectly assumed a database bottleneck and initiated a failover to a secondary database, leading to further complications.
 
- *Misleading investigation/debugging paths that were taken;* 
+11:15 AM: Issue escalated to the infrastructure team as the problem persisted. Load balancer logs were reviewed for anomalies.
 
-We first tried to convert methods and variables concerned to the new version which
-has led to complications.
+11:45 AM: Identified the misconfiguration in load balancer settings causing an uneven distribution of requests.
 
- *Which team/individuals;* 
+12:00 PM: Load balancer settings were corrected to evenly distribute traffic across payment processing servers.
 
-The incident escalated to developers team.
+12:45 PM: Payment processing service fully restored, and normal transaction speed resumed.
 
- *How the incident was resolved;* 
+#Root Cause and Resolution:
 
-Incident was resolved via rollback on the server to the previous application state. It made new users lose their accounts but it was the best solution.
+Root Cause:
+The misconfiguration in the load balancer settings resulted in uneven distribution of requests. Some payment processing servers were overloaded while others remained underutilized, causing transaction delays and failures.
 
- *Root cause and resolution;* 
+Resolution:
+The load balancer settings were promptly corrected to evenly distribute incoming requests among payment processing servers. This resolved the imbalance, ensuring optimal performance and restoring normal transaction speed.
 
-What was causing the issue was because Someone tried to upgrade his local development stack onto the next version but unfortunately he turned up to be upgrading the overall production environment . His error passed without devOps noticing it then the clients started facing errors to connect or send requests using the methods concerned by the upgrade. 
+Corrective and Preventative Measures:
 
- *How the issue was fixed;* 
+#Things to Improve/Fix:
 
-As explained earlier, the issue has been fixed via a complete rollback of the application including data to the previous state.
-To be more accurate, we have automated a backup for the application each day at 23:59 PM.
+Load Balancer Configuration Review: Establish a regular review process for load balancer configurations to prevent similar misconfigurations in the future.
 
- *Corrective and preventative measures:* 
+Automated Monitoring: Implement automated monitoring for load balancer performance and configuration, with alerts for any deviations from the standard settings.
 
-We have Set developers' local environment with docker containers so they can do whatever they want without affecting the global system.
+Failover Testing: Conduct regular failover testing to ensure a comprehensive understanding of system behavior in different scenarios, preventing unnecessary failovers.
 
- *Ways to address the issue;* 
+#Tasks to Address the Issue:
 
-Read log files Fix logs where error has been shown Locate concerned files Identify the current error (“deprecated and unused methods”) message Tried to update the methods whereas users were deferred on the backup server from the app file of 01:02 reset the whole app state to 01/02￼Enter
+Load Balancer Configuration Audit: Conduct a thorough audit of all load balancer configurations to identify and rectify any inconsistencies.
+
+Documentation Update: Update documentation related to load balancer configurations and failover procedures to ensure accuracy and accessibility for future incidents.
+
+Training Sessions: Organize training sessions for the operations team to enhance their troubleshooting skills and emphasize the importance of accurate root cause analysis.
+
+Communication Protocol: Establish a clear communication protocol for incident escalation, ensuring timely involvement of relevant teams to expedite issue resolution.
+
+Post-Incident Review: Schedule a post-incident review meeting to analyze the incident response and identify areas for further improvement in the incident management process.
